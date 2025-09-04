@@ -1,0 +1,63 @@
+import csv, statistics
+from pathlib import Path
+
+MONTHS = ["January","February","March","April","May","June",
+          "July","August","September","October","November","December"]
+
+TEMPDIR = Path("temperatures")
+OUT_RANGE = Path("range_stations.txt")
+OUT_STABILITY = Path("temperature_stability_stations.txt")
+
+def load_station_temps(tempdir: Path) -> dict[str, list[float]]:
+    """Return {station_name: [all monthly temps across all years]}."""
+    stations: dict[str, list[float]] = {}
+    files = sorted(tempdir.glob("*.csv"))
+    if not files:
+        raise SystemExit(f"No CSVs found in {tempdir}. Put your data there.")
+
+    for f in files:
+        with f.open(newline="", encoding="utf-8") as fh:
+            reader = csv.DictReader(fh)
+            for row in reader:
+                name = (row.get("STATION_NAME") or row.get("Station") or
+                        row.get("station") or row.get("station_name"))
+                if not name:
+                    continue
+                vals = []
+                for m in MONTHS:
+                    v = row.get(m, "")
+                    try:
+                        vals.append(float(v))
+                    except:
+                        pass  # skip blanks / non-numerics
+                if vals:
+                    stations.setdefault(name, []).extend(vals)
+    return stations
+
+def write_range(stations: dict[str, list[float]], out_path: Path) -> None:
+    """Write station(s) with the largest overall (max-min) range."""
+    ranges = {s: (max(v) - min(v)) for s, v in stations.items() if v}
+    max_r = max(ranges.values())
+    winners = [s for s, r in ranges.items() if abs(r - max_r) < 1e-9]
+    with out_path.open("w", encoding="utf-8") as f:
+        f.write(f"Largest temperature range: {max_r:.2f}°C\n")
+        for s in winners:
+            f.write(f"{s}\n")
+
+def write_stability(stations: dict[str, list[float]], out_path: Path) -> None:
+    """Write most stable (smallest stdev) and most variable (largest stdev)."""
+    stdevs = {s: statistics.pstdev(v) for s, v in stations.items() if len(v) >= 2}
+    min_std = min(stdevs.values()); max_std = max(stdevs.values())
+    most_stable   = [s for s, sd in stdevs.items() if abs(sd - min_std) < 1e-12]
+    most_variable = [s for s, sd in stdevs.items() if abs(sd - max_std) < 1e-12]
+    with out_path.open("w", encoding="utf-8") as f:
+        for s in most_stable:
+            f.write(f"Most Stable: {s} — StdDev {min_std:.2f}°C\n")
+        for s in most_variable:
+            f.write(f"Most Variable: {s} — StdDev {max_std:.2f}°C\n")
+
+if __name__ == "__main__":
+    stations = load_station_temps(TEMPDIR)
+    write_range(stations, OUT_RANGE)
+    write_stability(stations, OUT_STABILITY)
+    print("Wrote range_stations.txt and temperature_stability_stations.txt")
