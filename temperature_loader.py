@@ -56,9 +56,3 @@ def get_combined_data(folder_path="temperatures"):
     combined_df = pd.concat(all_dfs, ignore_index=True)
     return combined_df
 
-if __name__ == "__main__":
-    combined_df = get_combined_data("temperatures")
-    print("Combined shape:", combined_df.shape)
-    print(combined_df.head(15))
-
-
