@@ -98,7 +98,17 @@ for char in ecrypted_string:
             string += chr(encrypted_letter)
     else:
         string += char
-#prints the decrypted string and rewrites it to the raw text file
+#prints the decrypted string and writes it to the decrypted text file
 print("\nDecrypted:\n"+string)
 with open("raw_text.txt", "w") as Ofile:
     Ofile.write(string)
+Decrypted_txt = open("Decrypted_text.txt", "w")
+Decrypted_txt.write(string)
+
+
+with open("raw_text.txt", "r") as Ofile:
+    Ostring = Ofile.read()
+
+#original string vs decrypted string check
+if string == Ostring:
+    print("The Decryption was a success!")
