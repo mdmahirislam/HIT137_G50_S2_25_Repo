@@ -1,7 +1,7 @@
 #reads the raw text file
 with open("raw_text.txt", "r") as Ofile:
     string = Ofile.read()
-ecrypted_string = ""
+encrypted_string = ""
 
 #gets shift values from user
 shift1 = int(input("Enter shift 1 value: "))
@@ -19,7 +19,7 @@ for char in string:
                 if encrypted_letter > ord("m"):
                     encrypted_letter = ord("a")
                 counter += 1
-            ecrypted_string += chr(encrypted_letter)
+            encrypted_string += chr(encrypted_letter)
         #checks if letter is in second half of alphabet and shifts accordingly
         elif ord("n") <= encrypted_letter <= ord("z"):
             while counter < shift1 + shift2:
@@ -27,7 +27,7 @@ for char in string:
                 if encrypted_letter < ord("n"):
                     encrypted_letter = ord("z")
                 counter += 1
-            ecrypted_string += chr(encrypted_letter)
+            encrypted_string += chr(encrypted_letter)
 
     elif char.isupper():
         encrypted_letter = ord(char)
@@ -38,7 +38,7 @@ for char in string:
                 if encrypted_letter < ord("A"):
                     encrypted_letter = ord("M")
                 counter += 1
-            ecrypted_string += chr(encrypted_letter)
+            encrypted_string += chr(encrypted_letter)
         #checks if letter is in second half of alphabet and shifts accordingly
         elif ord("N") <= encrypted_letter <= ord("Z"):
             while counter < shift2 ** 2:
@@ -46,18 +46,18 @@ for char in string:
                 if encrypted_letter > ord("Z"):
                     encrypted_letter = ord("N")
                 counter += 1
-            ecrypted_string += chr(encrypted_letter)
+            encrypted_string += chr(encrypted_letter)
     else:
-        ecrypted_string += char
+        encrypted_string += char
 
 #creates and writes the encrypted text to encrypted text file
-print("\nEcrypted:\n"+ecrypted_string)
+print("\nEcrypted:\n"+encrypted_string)
 encrypted_txt = open("encrypted_text.txt", "w")
-encrypted_txt.write(ecrypted_string)
+encrypted_txt.write(encrypted_string)
 
 string = ""
 #decrypts the string
-for char in ecrypted_string:
+for char in encrypted_string:
     counter = 0
     if char.islower():
         encrypted_letter = ord(char)
